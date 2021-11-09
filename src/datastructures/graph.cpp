@@ -24,6 +24,13 @@ void graph::build_directed(int cnt,...){
 	va_end(ap);
 }
 
+void graph::build_undirected(vector<pi>v){
+	for(auto edge: v){
+		g[edge.first].push_back(edge.second);
+		g[edge.second].push_back(edge.first);
+	}
+}
+
 void graph::clear(int n) {
 	this->g.clear();
 	initialise(n);
@@ -50,5 +57,54 @@ bool graph::dfs(int x, bool *vis, bool *instack) {
 		if(dfs(y,vis,instack))return true;
 	}
 	instack[x]=false;
+	return false;
+}
+
+bool dfs1(int x, int px, int n, bool* vis, vector<vector<int>>g){
+	vis[x]=true;
+	for(int y: g[x]){
+		if(y==px)continue;
+		if(vis[y])return true;
+		if(dfs1(y,x,n,vis,g))return true;
+	}
+	return false;
+}
+
+bool graph::has_cycle_undirected() {
+	bool *vis=new bool[n+1];
+	for(int i=1;i<=n;++i){
+		vis[i]=false;
+	}
+	for(int i=1;i<=n;++i){
+		if(vis[i])continue;
+		if(dfs1(i, -1, n, vis, g))return true;
+	}
+	return false;
+}
+
+int find(int x, int* pa){
+	return pa[x]=pa[x]==x?x:find(pa[x]);
+}
+
+bool un1on(int x, int y, int* pa){
+	int xx = find(x,pa);
+	int yy = find(y,pa);
+	if(xx==yy)return true;
+	pa[yy]=xx;
+	return false;
+}
+
+bool graph::has_cycle_undirected_union_find() {
+	int *pa=new int[n+1];
+	for(int i=1;i<=n;++i){
+		pa[i]=i;
+	}
+	for(int i=1;i<=n;++i){
+		for(auto j:g[i]){
+			//consider one edge once,ignore self loop.
+			if(i>=j)continue;
+			if(un1on(i,j,pa))return true;
+		}
+	}
 	return false;
 }

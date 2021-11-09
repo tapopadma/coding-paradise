@@ -8,6 +8,24 @@ typedef vector<char> vc;
 typedef pair<int, int> pi;
 typedef pair<long long int, long long int> pll;
 
+void inputl() {}
+template<typename... Arg>
+void inputl(long long int& a, Arg&&... args) {
+	scanf("%lld", &a);
+	inputl(forward<Arg>(args)...);
+}
+void outputl(long long int a){printf("%lld ",a);}
+template<typename... Arg>
+void outputl(long long int a, Arg... args){printf("%lld ",a);outputl(args...);}
+void input() {}
+template<typename... Arg>
+void input(int& a, Arg&&... args) {
+	scanf("%d", &a);
+	input(forward<Arg>(args)...);
+}
+void output(int a){printf("%d ",a);}
+template<typename... Arg>
+void output(int a, Arg... args){printf("%d ",a);output(args...);}
 #define mp make_pair
 #define pb push_back
 #define el putchar('\n')
@@ -15,45 +33,22 @@ typedef pair<long long int, long long int> pll;
 #define all(a) a.begin(), a.end()
 #define rep(i, l, r) for(int i=l;i<r;++i)
 #define tr(a, it) for (auto it = a.begin(); it != a.end(); ++it)
-#define inl(n) scanf("%lld", &n)
-#define in(n) scanf("%d", &n)
-#define out(n) printf("%d", n);
-#define outl(n) printf("%lld", n);
+#define inl(a...) long long int a;inputl(a);
+#define in(a...) int a;input(a);
+#define ina(a,n)for(int i=0;i<n;++i)scanf("%d",&a[i]);
+#define inla(a,n)for(int i=0;i<n;++i)scanf("%lld",&a[i]);
+#define out(a...) output(a);
+#define outl(a...) outputl(a);
 #define outs(s) printf("%s", s.c_str());
-#define pf(s) printf(s)
+#define pf printf
 
 #define INF64 9223372036854775807LL
 #define INF 2147483647
 #define mod 998244353
-#define NN 2001
-
-vector<vi> g;
-
-void foo(int cnt,...){
-	va_list ap;
-	va_start(ap,cnt);
-	int n=va_arg(ap,int);
-	g=vector<vi>(n+1);
-	for(int i=2;i<=cnt;++i){
-		pi edge=va_arg(ap,pi);
-		int u=edge.first;
-		int v=edge.second;
-		g[u].pb(v);
-	}
-	va_end(ap);
-	for(int i=1;i<=n;++i){
-		for(auto u:g[i]){
-			out(u);sp;
-		}
-		el;
-	}
-	out(5);el;
-	g.clear();
-	out(g.size());el;
-}
+#define NN 200001
 
 void solve() {
-	foo(4,3,mp(1,2),mp(1,3),mp(2,3));
+	
 }
 
 int main() {
@@ -63,8 +58,9 @@ int main() {
 		auto start = chrono::high_resolution_clock::now();
 		solve();
 		auto stop = chrono::high_resolution_clock::now();
+		auto end_time = chrono::system_clock::to_time_t(stop);
 		auto duration=chrono::duration_cast<chrono::milliseconds>(stop-start);
-		printf("\n\n\n%6f sec",duration.count()/1000.0);
+		printf("\n\n\n%6f sec \nat %s",duration.count()/1000.0,ctime(&end_time));
 	#else
 		solve();
 	#endif	

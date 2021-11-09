@@ -26,6 +26,7 @@ TEST_F(graph_test, cycle_in_digraph) {
 		,make_pair(6,9)
 		,make_pair(8,9));
 	ASSERT_EQ(g.has_cycle_directed(),false);
+
 	g.clear(9);
 	g.build_directed(11
 		,make_pair(1,2)
@@ -40,19 +41,40 @@ TEST_F(graph_test, cycle_in_digraph) {
 		,make_pair(6,9)
 		,make_pair(9,8));
 	ASSERT_EQ(g.has_cycle_directed(),true);
+
 	g.clear(3);
 	g.build_directed(3
 		,make_pair(1,2)
 		,make_pair(2,3)
 		,make_pair(3,1));
 	ASSERT_EQ(g.has_cycle_directed(),true);
+
 	g.clear(3);
 	g.build_directed(2
 		,make_pair(1,1)
 		,make_pair(2,2));
 	ASSERT_EQ(g.has_cycle_directed(),true);
+
 	g.clear(3);
 	g.build_directed(1
 		,make_pair(1,2));
 	ASSERT_EQ(g.has_cycle_directed(),false);
+}
+
+
+TEST_F(graph_test, cycle_in_undirectedgraph) {
+	graph g(4);
+	g.build_undirected({{1,2},{1,3},{2,4}});
+	ASSERT_EQ(g.has_cycle_undirected(),false);
+	ASSERT_EQ(g.has_cycle_undirected_union_find(),false);
+
+	g.clear(6);
+	g.build_undirected({{4,5},{4,6},{1,2},{2,3},{3,1}});
+	ASSERT_EQ(g.has_cycle_undirected(),true);
+	ASSERT_EQ(g.has_cycle_undirected_union_find(),true);
+
+	g.clear(2);
+	g.build_undirected({{1,2},{2,1}});
+	ASSERT_EQ(g.has_cycle_undirected(),true);
+	ASSERT_EQ(g.has_cycle_undirected_union_find(),true);
 }
