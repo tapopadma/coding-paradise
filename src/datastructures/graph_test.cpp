@@ -78,3 +78,16 @@ TEST_F(graph_test, cycle_in_undirectedgraph) {
 	ASSERT_EQ(g.has_cycle_undirected(),true);
 	ASSERT_EQ(g.has_cycle_undirected_union_find(),true);
 }
+
+TEST_F(graph_test, topological_sort) {
+	graph g(3);
+	g.build_directed(3
+		,make_pair(1,2)
+		,make_pair(2,3)
+		,make_pair(1,3));
+	vi actual=g.sort();
+	vi expected={1,2,3};
+	rep(i,0,3){
+		ASSERT_EQ(actual[i],expected[i]);
+	}
+}

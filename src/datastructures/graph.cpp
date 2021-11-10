@@ -1,5 +1,4 @@
 #include "graph.h"
-typedef pair<int, int> pi;
 
 graph::graph(int n) {
 	initialise(n);
@@ -82,13 +81,13 @@ bool graph::has_cycle_undirected() {
 	return false;
 }
 
-int find(int x, int* pa){
-	return pa[x]=pa[x]==x?x:find(pa[x]);
+int f1nd(int x, int* pa){
+	return pa[x]=pa[x]==x?x:f1nd(pa[x],pa);
 }
 
 bool un1on(int x, int y, int* pa){
-	int xx = find(x,pa);
-	int yy = find(y,pa);
+	int xx = f1nd(x,pa);
+	int yy = f1nd(y,pa);
 	if(xx==yy)return true;
 	pa[yy]=xx;
 	return false;
@@ -107,4 +106,27 @@ bool graph::has_cycle_undirected_union_find() {
 		}
 	}
 	return false;
+}
+
+void dfs2(int x, bool* vis,stack<int>& s,vector<vi>g){
+	if(vis[x])return;
+	vis[x]=true;
+	for(auto y:g[x]){
+		dfs2(y,vis,s,g);
+	}
+	s.push(x);
+}
+
+vi graph::sort() {
+	stack<int>s;
+	bool *vis=new bool[n+1];
+	rep(i,1,n+1)vis[i]=false;
+	rep(i,1,n+1){
+		dfs2(i,vis,s,g);
+	}
+	vi nodes;
+	while(!s.empty()){
+		nodes.pb(s.top());s.pop();
+	}
+	return nodes;
 }
