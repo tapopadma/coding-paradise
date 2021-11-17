@@ -31,7 +31,6 @@ void output(int a, Arg... args){printf("%d ",a);output(args...);}
 #define el putchar('\n')
 #define sp putchar(' ')
 #define all(a) a.begin(), a.end()
-#define has(a,e) a.find(e)!=a.end()
 #define rep(i, l, r) for(int i=l;i<r;++i)
 #define tr(a, it) for (auto it = a.begin(); it != a.end(); ++it)
 #define inl(a...) long long int a;inputl(a);
@@ -47,55 +46,45 @@ void output(int a, Arg... args){printf("%d ",a);output(args...);}
 #define INF64 9223372036854775807LL
 #define INF 2147483647
 #define mod 998244353
-#define NN 200001
+#define NN 51
 
-void solve() {
-	in(t);
-	while(t--){
-		inl(a1,a2,a3,a4,a5);
-		inl(b1,b2,b3,b4,b5);
-		if(a5>b5){
-			pf("No");el;continue;
-		}
-		b5-=a5;a5=0;
-		if(a4>b4+b5){
-			pf("No");el;continue;
-		}
-		ll mn = min(b4,a4);
-		b4-=mn;a4-=mn;
-		b5-=a4;b1+=a4;a4=0;
-		if(a3>b3+b4+b5){
-			pf("No");el;continue;
-		}
-		mn=min(a3,b3);
-		b3-=mn;a3-=mn;
-		mn=min(a3,b5);
-		a3-=mn;b5-=mn;b2+=mn;
-		b4-=a3;b1+=a3;a3=0;
- 
-		if(b2+b3+b4*2ll+b5*2ll<a2){
-			pf("No");el;continue;
-		}
-		pf(b1+b2*2ll+b3*3ll+b4*4ll+b5*5ll-a2*2ll>=a1?"Yes":"No");el;
+/**
+ * Cayley's number: n^(n-2).
+ * Question: Count the number of trees that can be made using n nodes or count
+ * the number of spanning trees that can be made out of a complete graph of size n.
+ * 
+ * Idea: Assume root=1, we can choose i nodes out of the remaining n-1 nodes as the 
+ * children of 1 in nCi ways. Now these i nodes can't have any more parents and
+ * 1 can't have any more children. So now we need to count for the remaining n-1
+ * nodes where i nodes will replace 1 and (n-1)-i nodes will replace n-1 nodes.
+ * So rec(n,k)=SUM(nCi * rec(n-1,k-1+i)), where 0<=i<=n-k.
+ */
+
+class cayley final{
+	ll fac[NN];
+	ll ncr(ll,ll);
+	ll rec(ll,ll);
+public:
+	cayley(){
+		fac[0]=1;rep(i,1,NN)fac[i]=fac[i-1]*1ll*i;
 	}
+	int count(int);
+};
+
+ll cayley::ncr(ll n, ll r){
+	return fac[n]/fac[r]/fac[n-r];
 }
 
-int main() {
-	#ifndef ONLINE_JUDGE
-		if(READ_FROM_FILE){
-			freopen("fi.in", "r", stdin);
-			freopen("fo.out", "w", stdout);
-			auto start = chrono::high_resolution_clock::now();
-			solve();
-			auto stop = chrono::high_resolution_clock::now();
-			auto end_time = chrono::system_clock::to_time_t(stop);
-			auto duration=chrono::duration_cast<chrono::milliseconds>(stop-start);
-			printf("\n\n\n%6f sec \nat %s",duration.count()/1000.0,ctime(&end_time));
-		} else {
-			solve();
-		}
-	#else
-		solve();
-	#endif	
-	return 0;
+ll cayley::rec(ll n, ll k){
+	if(n==k)return 1;
+	if(k==0)return 0;
+	ll ret = 0;
+	rep(i,0,n-k+1){
+		ret += 1ll*ncr(n-k,i)*rec(n-1,k-1+i);
+	}
+	return ret;
+}
+
+int cayley::count(int n) {
+	return rec(n,1);
 }

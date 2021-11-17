@@ -8,36 +8,38 @@ typedef vector<char> vc;
 typedef pair<int, int> pi;
 typedef pair<long long int, long long int> pll;
 
-#define mp make_pair
-#define pb push_back
-#define el putchar('\n')
-#define sp putchar(' ')
-#define all(a) a.begin(), a.end()
-#define rep(i, l, r) for(int i=l;i<r;++i)
-#define tr(a, it) for (auto it = a.begin(); it != a.end(); ++it)
-#define inl(a...) long long int a;inputl(a);
-#define in(a...) int a;input(a);
-#define ina(a,n)for(int i=0;i<n;++i)scanf("%d",&a[i]);
-#define inla(a,n)for(int i=0;i<n;++i)scanf("%lld",&a[i]);
-#define out(a...) output(a);
-#define outl(a...) outputl(a);
-#define outs(s) printf("%s", s.c_str());
-#define pf printf
-
 class graph final {
 private:
     vector<vector<int>>g;
+    vector<vector<vi>>g2;
     int n;
     bool dfs(int, bool *, bool *);
     void initialise(int);
+    void convert_g2_to_g();
 public:
 	graph(int);
 	virtual ~graph();
-    void build_directed(int,...);
-    void build_undirected(vector<pair<int,int>>);
+    void build_directed(vector<pi>);
+    void build_undirected(vector<pi>);
     bool has_cycle_directed();
     void clear(int);
     bool has_cycle_undirected();
     bool has_cycle_undirected_union_find();
     vi sort();
+    int diameter_undirected();
+    int diameter_directed();
+    int mst_prim();
+    int mst_kruskal();
+    void build_weighted_undirected(vector<vi>);
+    bool has_hamiltonian_cycle();
+    vi dijkstra(int);
+    void build_weighted_directed(vector<vi>);
+    vi bellman_ford(int);
+    int floyd_warshall(int,int);
+    vi toposort_shortestpath(int);
+    vi count_articulation_point();
+    vector<pi> count_bridges();
+    bool is_eulerian();
+    vector<vi>count_scc();
+    vector<vi>transpose();
 };
