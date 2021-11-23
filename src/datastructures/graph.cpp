@@ -361,7 +361,8 @@ vi graph::bellman_ford(int source) {
 	return costs;	
 }
 
-/**works for all graph.*/
+/**works for all graph. This approach is also used to find transitive 
+ * closure of a graph aka all pair reachability.*/
 int graph::floyd_warshall(int source, int dest){
 	int dist[n+1][n+1];
 	rep(i,1,n+1)rep(j,1,n+1)dist[i][j]=(i==j?0:INF);
@@ -517,7 +518,6 @@ void dfs6(int x, vi& v, bool* vis, vector<vi>g){
 	}
 }
 
-
 /** SCC in a directed graph is a subgraph where all nodes are interconnected.
  * 
  * Observation 1: SCC and transpose(SCC) are both SCCs. means if subgraph 
@@ -538,4 +538,290 @@ vector<vi> graph::count_scc() {
 	}
 	std::sort(all(sccs));
 	return sccs;
+}
+
+void dfs7(int x, int& timer,stack<int>& s,
+	vector<vi>& sccs,int* tim, int* mn,
+	bool* instack, vector<vi>g){
+	tim[x]=mn[x]=++timer;instack[x]=true;
+	s.push(x);
+	for(auto y:g[x]){
+		if(tim[y]==-1){
+			dfs7(y,timer,s,sccs,tim,mn,instack,g);
+			mn[x]=min(mn[x],mn[y]);
+		} else if(instack[y]){//if y isn't in stack x->y isn't a back edge since all out edges of are covered by now.
+			mn[x]=min(mn[x],tim[y]);
+		}
+	}
+	if(mn[x]==tim[x]){
+		vi v;
+		while(!s.empty()){
+			v.pb(s.top());instack[s.top()]=false;
+			if(s.top()==x){
+				s.pop();break;
+			} else s.pop();
+		}
+		std::sort(all(v));sccs.pb(v);
+	}
+}
+
+/**
+ * If we compute tim[] and mn[] for the graph G = C1->C2->C3->C4,
+ * then mn[C4]>mn[C3]>... and mn[C4.root]=tim[C4.root].
+ */
+vector<vi> graph::count_scc_tarjan() {
+	int timer=0;
+	int tim[n+1],mn[n+1];
+	bool instack[n+1];
+	rep(i,1,n+1)tim[i]=-1,mn[i]=INF,instack[i]=false;
+	stack<int>s;
+	vector<vi>sccs;
+	dfs7(1,timer,s,sccs,tim,mn,instack,g);
+	std::sort(all(sccs));
+	return sccs;
+}
+
+/** converts a directed weighted graph g2 to a residual graph g2
+ * where g2[u][j] stores {v, capacity,index of edge v-u in g2[v]}. */
+void graph::convert_to_residual_graph(){
+	map<pi,int>idx;
+	vector<vector<vi>> g3(n+1);
+	rep(i,1,n+1){
+		for(auto e:g2[i]){
+			if(idx[{i,e[0]}]){
+				g3[i][idx[{i,e[0]}]-1][1]=e[1];
+			}else{
+				int sz1=g3[i].size(),sz2=g3[e[0]].size();
+				g3[i].pb({e[0],e[1],sz2});
+				g3[e[0]].pb({i,0,sz1});
+				idx[{i,e[0]}]=sz1+1;idx[{e[0],i}]=sz2+1;
+			}
+		}
+	}
+	g2=g3;
+}
+
+/**
+ * Edmon-Karp(extension of Ford fukerson): O(N*M^2) iff adj list is used.
+ * 
+ * Max flow is the maximum weight that can be transported from
+ * a given node s to t in a directed weighted graph such that
+ * flow f[e]<=C[e] for an edge e with capacity C and total inflow
+ * = total outflow.
+ * 
+ * Find any path from s to t and find the minimum capacity of 
+ * an edge mn in it. We add mn to the ans and subtract mn from 
+ * each edge on the above path and add mn to reverse of each edge
+ * on the above path. Repeat till a path exists with positive flow.
+ * 
+ * Note: adding mn to the v-u after subtracting from u-v is necessary
+ * to be able to undo addition of some value(mn1 < mn) to u-v  
+ * and add it to u-v1 in future steps.
+ */ 
+int graph::count_max_flow_edmond_karp(int s, int t){
+	convert_to_residual_graph();
+	int pa[n+1];bool vis[n+1];
+	int ret=0;
+	while(true){
+		rep(i,1,n+1)pa[i]=-1,vis[i]=false;
+		queue<int>q;q.push(s);vis[s]=true;
+		while(!q.empty()){
+			int x=q.front();q.pop();
+			if(x==t)break;
+			for(auto e:g2[x]){
+				int y=e[0],w=e[1];
+				if(vis[y]||w==0)continue;
+				q.push(y);pa[y]=e[2];vis[y]=true;
+			}
+		}
+		if(pa[t]==-1)break;
+		int mn=INF;
+		int x=t;
+		while(pa[x]!=-1)
+			mn=min(mn,g2[g2[x][pa[x]][0]][g2[x][pa[x]][2]][1]),
+			x=g2[x][pa[x]][0];
+		x=t;
+		while(pa[x]!=-1)
+			g2[g2[x][pa[x]][0]][g2[x][pa[x]][2]][1]-=mn,
+			g2[x][pa[x]][1]+=mn,
+			x=g2[x][pa[x]][0];
+		ret += mn;
+	}
+	return ret;
+}
+
+/** converts a directed weighted graph g2 to a residual graph g2
+ * where g2[u][j] stores {v, flow, capacity,index of edge v-u in g2[v]}.*/
+void graph::convert_to_residual_graph_dinics(){
+	map<pi,int>idx;
+	vector<vector<vi>> g3(n+1);
+	rep(i,1,n+1){
+		for(auto e:g2[i]){
+			if(idx[{i,e[0]}]){
+				g3[i][idx[{i,e[0]}]-1][2]=e[1];
+			}else{
+				int sz1=g3[i].size(),sz2=g3[e[0]].size();
+				g3[i].pb({e[0],0,e[1],sz2});
+				g3[e[0]].pb({i,0,0,sz1});
+				idx[{i,e[0]}]=sz1+1;idx[{e[0],i}]=sz2+1;
+			}
+		}
+	}
+	g2=g3;
+}
+
+int dfs8(int x,int flow,vector<vector<vi>>&g2,int t,int* st,int* level){
+	if(x==t){
+		return flow;
+	}
+	rep(i,st[x],g2[x].size()){
+		auto e=g2[x][i];
+		if(e[1]<e[2]&&level[e[0]]==level[x]+1){
+			int mn=min(flow, e[2]-e[1]);
+			int mx=dfs8(e[0],mn,g2,t,st,level);
+			if(mx > 0){
+				g2[x][i][1]+=mx;g2[e[0]][e[3]][1]-=mx;
+				return mx;
+			}
+		}
+		st[x]++;
+	}
+	return 0;
+}
+
+/**O(N^2*M) [Recommended]
+ * 
+ * In stead of searching for one valid flow each time until it exists,
+ * count all level wise flow in one go, update the residual graph,repeat.
+ * 
+ * 1-Assign levels to the reachable nodes from s in graph G. Keep finding
+ *  flows that follow the increasing order of levels 0,1,2,...
+ * 2-Repeat #1 if t is reachable.
+ * 
+ * This doesn't traverse entire graph per iteration.
+ */ 
+int graph::count_max_flow_dinics(int s, int t){
+	convert_to_residual_graph_dinics();
+	int ret=0;
+	while(true){
+		int level[n+1];
+		rep(i,1,n+1)level[i]=-1;
+		queue<int>q;q.push(s);level[s]=0;
+		while(!q.empty()){
+			int x=q.front();q.pop();
+			for(auto e:g2[x]){
+				if(e[1]<e[2]&&level[e[0]]==-1){
+					level[e[0]]=level[x]+1;
+					q.push(e[0]);
+				}
+			}
+		}
+		if(level[t]==-1)break;
+		int st[n+1];
+		rep(i,1,n+1)st[i]=0;
+		while(int mx=dfs8(s,INF,g2,t,st,level)){
+			ret += mx;
+		}
+	}
+	return ret;
+}
+
+/** 
+ * min cut in a directed graph G is the min total weight of edges to be deleted
+ * to make s and t disconnected.
+ * 
+ * Note: we keep reducing edge weights in a path until there's no connection 
+ * between s and t. This is same as max flow problem => min cut=max flow.
+ * 
+ * The edges in G that connect two isolated nodes (u,v) in residual graph R
+ * are the cut-set.
+ */
+vector<vi> graph::find_min_cut(int s, int t){
+	vector<vector<vi>>g3=g2;//clone original graph before turning it to residue.
+	int mn = count_max_flow_edmond_karp(s,t);
+	bool vis[n+1];rep(i,1,n+1)vis[i]=false;
+	queue<int>q;q.push(s);vis[s]=true;
+	while(!q.empty()){
+		int x = q.front();q.pop();
+		for(auto e:g2[x]){
+			int y=e[0];
+			if(e[1]>0&&!vis[y]){
+				vis[y]=true;
+				q.push(y);
+			}
+		}
+	}
+	vector<vi> cut_set;
+	rep(i,1,n+1){
+		for(auto e:g3[i]){
+			if(vis[i]&&!vis[e[0]]){
+				cut_set.pb({i,e[0],e[1]});
+			}
+		}
+	}
+	std::sort(all(cut_set));
+	return cut_set;
+}
+
+//S->applicants->jobs->T
+void graph::build_network_from_bipartite(int n1, int n2) {
+	g2=vector<vector<vi>>(n1+n2+3);
+	rep(i,1,n1+1){
+		for(auto j:g[i]){
+			g2[i].pb({j,1});
+		}
+	}
+	rep(y,1,n1+1){
+		g2[n1+n2+1].pb({y,1});
+	}
+	rep(x,n1+1,n1+n2+1){
+		g2[x].pb({n1+n2+2,1});
+	}
+}
+
+
+/** 
+ * Given n1 people and n2 jobs they might be interested in. Find
+ * maximum no of people that can get a job such that 1-1 mapping exists.
+ * 
+ * Since outflow of each of n1 can be max 1 and inflow of each of n2
+ * can be max 1, so we add new vertex n1+n2+1 to the left and n1+n2+2 to the 
+ * right and complete the network flow with edge weighing 1. Then just 
+ * finding max flow is enough.
+ * */
+vector<pi> graph::count_max_bipartite_matching(int n1, int n2){
+	//build network from unweighted directed graph
+	build_network_from_bipartite(n1,n2);
+	n=n1+n2+2;
+	int mx=count_max_flow_edmond_karp(n1+n2+1,n1+n2+2);
+	vector<pi> matches;
+	rep(i,1,n1+1){
+		for(auto e:g2[i]){
+			if(e[0]>n1&&e[0]<=n1+n2){
+				if(e[1]==0&&g2[e[0]][e[2]][1]==1)matches.pb({i,e[0]});
+			}
+		}
+	}
+	std::sort(all(matches));
+	return matches;
+}
+
+int dfs9(int x, int mask, int n,vector<vi>a,vector<vi>dp){
+	if(dp[x][mask]!=-1)return dp[x][mask];
+	if(mask+1==1<<n)
+		return dp[x][mask]=a[x][1];
+	int ret = INF;
+	rep(i,1,n+1){
+		if(((mask>>(i-1))&1)==0){
+			ret = min(ret, a[x][i]+dfs9(i,mask|(1<<(i-1)),n,a,dp));
+		}
+	}
+	return dp[x][mask]=ret;
+}
+
+int graph::tsp(){
+	vector<vi> a(n+1);rep(i,1,n+1)rep(j,0,n+1)a[i].pb(INF);
+	rep(i,1,n+1)for(auto e:g2[i])a[i][e[0]]=e[1];
+	vector<vi> dp(n+1);rep(i,1,n+1)rep(j,0,1<<n)dp[i].pb(-1);
+	return dfs9(1,1,n,a,dp);
 }

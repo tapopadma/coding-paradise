@@ -25,5 +25,23 @@ target_link_libraries(
   cayley_lib
 )
 
+add_library(
+  modulo_lib
+  modulo.cpp
+)
+add_executable(
+  modulo_test
+  modulo_test.cpp
+)
+target_link_libraries(
+  modulo_test
+  gtest_main
+)
+target_link_libraries(
+  modulo_test
+  modulo_lib
+)
+
 include(GoogleTest)
 gtest_discover_tests(cayley_test)
+gtest_discover_tests(modulo_test)

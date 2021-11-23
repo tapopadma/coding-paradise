@@ -13,9 +13,13 @@ private:
     vector<vector<int>>g;
     vector<vector<vi>>g2;
     int n;
+    int **a;
     bool dfs(int, bool *, bool *);
     void initialise(int);
     void convert_g2_to_g();
+    void build_network_from_bipartite(int,int);
+    void convert_to_residual_graph();
+    void convert_to_residual_graph_dinics();
 public:
 	graph(int);
 	virtual ~graph();
@@ -42,4 +46,10 @@ public:
     bool is_eulerian();
     vector<vi>count_scc();
     vector<vi>transpose();
+    vector<vi>count_scc_tarjan();
+    int count_max_flow_edmond_karp(int, int);
+    int count_max_flow_dinics(int, int);
+    vector<vi> find_min_cut(int, int);
+    vector<pi> count_max_bipartite_matching(int, int);
+    int tsp();
 };

@@ -47,37 +47,11 @@ void output(int a, Arg... args){printf("%d ",a);output(args...);}
 #define INF64 9223372036854775807LL
 #define INF 2147483647
 #define mod 998244353
-#define NN 200001
+#define NN 1048580
 
 void solve() {
-	in(t);
-	while(t--){
-		inl(a1,a2,a3,a4,a5);
-		inl(b1,b2,b3,b4,b5);
-		if(a5>b5){
-			pf("No");el;continue;
-		}
-		b5-=a5;a5=0;
-		if(a4>b4+b5){
-			pf("No");el;continue;
-		}
-		ll mn = min(b4,a4);
-		b4-=mn;a4-=mn;
-		b5-=a4;b1+=a4;a4=0;
-		if(a3>b3+b4+b5){
-			pf("No");el;continue;
-		}
-		mn=min(a3,b3);
-		b3-=mn;a3-=mn;
-		mn=min(a3,b5);
-		a3-=mn;b5-=mn;b2+=mn;
-		b4-=a3;b1+=a3;a3=0;
- 
-		if(b2+b3+b4*2ll+b5*2ll<a2){
-			pf("No");el;continue;
-		}
-		pf(b1+b2*2ll+b3*3ll+b4*4ll+b5*5ll-a2*2ll>=a1?"Yes":"No");el;
-	}
+	// putenv("GTEST_FILTER=graph_test.count*");
+	cout<<getenv("GTEST_FILTER");el;
 }
 
 int main() {

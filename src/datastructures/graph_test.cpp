@@ -256,3 +256,72 @@ TEST_F(graph_test,count_scc){
 		assert_vectors(actual[i],expected[i]);
 	}
 }
+
+TEST_F(graph_test,count_scc_tarjan){
+	graph g(5);
+	g.build_directed({{1,4},{4,5},{2,1},{3,2},{1,3}});
+	vector<vi>actual=g.count_scc_tarjan();
+	vector<vi>expected={{1,2,3},{4},{5}};
+	rep(i,0,3){
+		assert_vectors(actual[i],expected[i]);
+	}
+}
+
+TEST_F(graph_test,count_max_flow_edmond_karp){
+	graph g(4);
+	g.build_weighted_directed({{1,2,3},{1,3,2},{2,3,5},{2,4,2},{3,4,3}});
+	ASSERT_EQ(g.count_max_flow_edmond_karp(1,4),5);
+	g.clear(6);
+	g.build_weighted_directed({{1,2,16},{1,3,13},{2,4,12},
+		{2,3,10},{3,2,4},{3,5,14},{4,3,9},{4,6,20},{5,4,7},{5,6,4}});
+	ASSERT_EQ(g.count_max_flow_edmond_karp(1,6),23);
+	g.clear(4);
+	g.build_weighted_directed({{1,2,1},{1,3,2},{3,4,2}});
+	ASSERT_EQ(g.count_max_flow_edmond_karp(1,4),2);
+}
+
+TEST_F(graph_test, find_min_cut){
+	graph g(4);
+	g.build_weighted_directed({{1,2,3},{1,3,2},{2,3,5},{2,4,2},{3,4,3}});
+	vector<vi>actual=g.find_min_cut(1,4);
+	vector<vi>expected={{1,2,3},{1,3,2}};
+	rep(i,0,2)assert_vectors(actual[i],expected[i]);
+	g.clear(6);
+	g.build_weighted_directed({{1,2,16},{1,3,13},{2,4,12},
+		{2,3,10},{3,2,4},{3,5,14},{4,3,9},{4,6,20},{5,4,7},{5,6,4}});
+	actual=g.find_min_cut(1,6);
+	expected={{2,4,12},{5,4,7},{5,6,4}};
+	rep(i,0,3)assert_vectors(actual[i],expected[i]);
+	g.clear(4);
+	g.build_weighted_directed({{1,2,1},{1,3,2},{3,4,2}});
+	actual=g.find_min_cut(1,4);
+	expected={{1,3,2}};
+	rep(i,0,1)assert_vectors(actual[i],expected[i]);
+}
+
+TEST_F(graph_test, count_max_bipartite_matching){
+	graph g(12);
+	g.build_directed({{1,8},{1,9},{3,7},{3,10},{4,9},{5,9},{5,10},{6,12}});
+	assert_vectors(g.count_max_bipartite_matching(6,6),
+		{{1,8},{3,7},{4,9},{5,10},{6,12}});
+}
+
+TEST_F(graph_test,count_max_flow_dinics){
+	graph g(4);
+	g.build_weighted_directed({{1,2,3},{1,3,2},{2,3,5},{2,4,2},{3,4,3}});
+	ASSERT_EQ(g.count_max_flow_dinics(1,4),5);
+	g.clear(6);
+	g.build_weighted_directed({{1,2,16},{1,3,13},{2,4,12},
+		{2,3,10},{3,2,4},{3,5,14},{4,3,9},{4,6,20},{5,4,7},{5,6,4}});
+	ASSERT_EQ(g.count_max_flow_dinics(1,6),23);
+	g.clear(4);
+	g.build_weighted_directed({{1,2,1},{1,3,2},{3,4,2}});
+	ASSERT_EQ(g.count_max_flow_dinics(1,4),2);
+}
+
+TEST_F(graph_test, tsp){
+	graph g(4);
+	g.build_weighted_undirected({{1,2,10},{1,4,20},{1,3,15},{2,4,25},
+		{2,3,35},{3,4,30}});
+	ASSERT_EQ(g.tsp(),80);
+}
