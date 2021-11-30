@@ -25,5 +25,23 @@ target_link_libraries(
   graph_lib
 )
 
+add_library(
+  tree_lib
+  tree.cpp
+)
+add_executable(
+  tree_test
+  tree_test.cpp
+)
+target_link_libraries(
+  tree_test
+  gtest_main
+)
+target_link_libraries(
+  tree_test
+  tree_lib
+)
+
 include(GoogleTest)
 gtest_discover_tests(graph_test)
+gtest_discover_tests(tree_test)

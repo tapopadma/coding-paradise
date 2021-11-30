@@ -42,6 +42,24 @@ target_link_libraries(
   modulo_lib
 )
 
+add_library(
+  catalan_lib
+  catalan.cpp
+)
+add_executable(
+  catalan_test
+  catalan_test.cpp
+)
+target_link_libraries(
+  catalan_test
+  gtest_main
+)
+target_link_libraries(
+  catalan_test
+  catalan_lib
+)
+
 include(GoogleTest)
 gtest_discover_tests(cayley_test)
 gtest_discover_tests(modulo_test)
+gtest_discover_tests(catalan_test)

@@ -47,11 +47,34 @@ void output(int a, Arg... args){printf("%d ",a);output(args...);}
 #define INF64 9223372036854775807LL
 #define INF 2147483647
 #define mod 998244353
-#define NN 1048580
+#define NN 200005
 
 void solve() {
-	// putenv("GTEST_FILTER=graph_test.count*");
-	cout<<getenv("GTEST_FILTER");el;
+	in(t);while(t--){
+		in(n);
+		int b[n];ina(b,n);
+		int p[n];ina(p,n);
+		int d[n+1];rep(i,1,n+1)d[i]=-1;
+		bool ok=true;
+		int val=0;
+		rep(i,0,n){
+			int x=p[i];
+			int px=b[x-1];
+			if(px==x||d[px]!=-1){
+				d[x]=val++;
+			} else {
+				ok=false;break;
+			}
+		}
+		if(!ok){
+			out(-1);el;
+		} else{
+			rep(i,1,n+1){
+				int x=i,px=b[x-1];
+				out(d[x]-d[px]);sp;
+			}el;
+		}
+	}
 }
 
 int main() {
