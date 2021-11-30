@@ -24,22 +24,22 @@ void output(int a, Arg... args){printf("%d ",a);output(args...);}
 #define outs(s) printf("%s", s.c_str());
 #define pf printf
 
-class node1{
+class avl_tree_node{
 public:
 	int val,height,cnt,freq;
-	node1* left;node1* right;
-	node1(int v):val(v),height(1),cnt(1),freq(1)
+	avl_tree_node* left;avl_tree_node* right;
+	avl_tree_node(int v):val(v),height(1),cnt(1),freq(1)
 				,left(NULL),right(NULL){}
 	void refresh();
 };
 
 class avl_tree {
-	node1* root;
-	node1* _insert(node1*,int);
-	int _query(node1*,int);
-	node1* _delete(node1*,int);
-	node1* self_balance(node1*);
-	void print(node1*);
+	avl_tree_node* root;
+	avl_tree_node* _insert(avl_tree_node*,int);
+	int _query(avl_tree_node*,int);
+	avl_tree_node* _delete(avl_tree_node*,int);
+	avl_tree_node* self_balance(avl_tree_node*);
+	void print(avl_tree_node*);
 public:
 	avl_tree(){
 		root=NULL;
@@ -50,17 +50,17 @@ public:
 	void clear();
 };
 
-void node1::refresh(){
+void avl_tree_node::refresh(){
 	cnt=(left?left->cnt:0)+(right?right->cnt:0)+freq;
 	height=max(left?left->cnt:0,right?right->cnt:0)+1;
 }
 
-node1* avl_tree::self_balance(node1* root){
+avl_tree_node* avl_tree::self_balance(avl_tree_node* root){
 	if(!root)return NULL;
 	if(root->left&&
 	   root->left->height>(root->right?root->right->height:0)+1){
 
-		node1* a=root->left;
+		avl_tree_node* a=root->left;
 		root->left=a->right;a->right=root;
 		
 		root->refresh();
@@ -69,7 +69,7 @@ node1* avl_tree::self_balance(node1* root){
 	} else if(root->right&&
 		root->right->height>(root->left?root->left->height:0)+1){
 
-		node1* a=root->right;
+		avl_tree_node* a=root->right;
 		root->right=a->left;a->left=root;
 
 		root->refresh();
@@ -79,9 +79,9 @@ node1* avl_tree::self_balance(node1* root){
 	return root;
 }
 
-node1* avl_tree::_insert(node1* root, int x){
+avl_tree_node* avl_tree::_insert(avl_tree_node* root, int x){
 	if(root==NULL){
-		return new node1(x);
+		return new avl_tree_node(x);
 	}
 	if(root->val==x){
 		root->cnt++;root->freq++;return root;
@@ -96,7 +96,7 @@ node1* avl_tree::_insert(node1* root, int x){
 	return self_balance(root);
 }
 
-void avl_tree::print(node1* root){
+void avl_tree::print(avl_tree_node* root){
 	if(!root)return;
 	print(root->left);
 	rep(i,0,root->freq){out(root->val);sp;}
@@ -108,7 +108,7 @@ void avl_tree::ins3rt(int x){
 	// print(root);el;
 }
 
-int avl_tree::_query(node1* root, int k){
+int avl_tree::_query(avl_tree_node* root, int k){
 	if(!root||k>root->cnt)return -1;
 	if(root->right&&root->right->cnt >= k)
 		return _query(root->right,k);
@@ -122,26 +122,26 @@ int avl_tree::get_kth_max(int k){
 	return _query(root,k);
 }
 
-node1* avl_tree::_delete(node1* root, int x){
+avl_tree_node* avl_tree::_delete(avl_tree_node* root, int x){
 	if(!root)return NULL;
 	if(root->val==x){
 		if(root->freq>1){
 			--root->cnt;--root->freq;return root;
 		} else {
 			if(!root->left){
-				node1* p=root->right;
+				avl_tree_node* p=root->right;
 				delete root;
 				return self_balance(p);
 			}
 			if(!root->right){
-				node1* p=root->left;
+				avl_tree_node* p=root->left;
 				delete root;
 				return self_balance(p);	
 			}
-			node1* next_node1=root->right;
-			while(next_node1->left)next_node1=next_node1->left;
-			root->left->right=next_node1;
-			node1* p=root->left;p->refresh();
+			avl_tree_node* next_avl_tree_node=root->right;
+			while(next_avl_tree_node->left)next_avl_tree_node=next_avl_tree_node->left;
+			root->left->right=next_avl_tree_node;
+			avl_tree_node* p=root->left;p->refresh();
 			delete root;
 			return self_balance(p);
 		}
@@ -381,10 +381,10 @@ int segment_tree_lazy::query(int x, int y){
 	return query(1,1,n,x,y);
 }
 
-class node3{
+class segment_tree_pst_node{
 public:
-	int l,r,val;node3* left;node3* right;
-	node3(int l1,int r1,int v1)
+	int l,r,val;segment_tree_pst_node* left;segment_tree_pst_node* right;
+	segment_tree_pst_node(int l1,int r1,int v1)
 		:l(l1),r(r1),val(v1),left(NULL),right(NULL){}
 };
 
@@ -404,9 +404,9 @@ public:
  * Now PST.query(r,x,y)-PST.query(l-1,x,y) is the answer in O(logn).
  */ 
 class segment_tree_persistent{
-	int n;vector<node3*> roots;
-	node3* update(int,int,int,int,node3*);
-	int query(node3*,int,int,int,int);
+	int n;vector<segment_tree_pst_node*> roots;
+	segment_tree_pst_node* update(int,int,int,int,segment_tree_pst_node*);
+	int query(segment_tree_pst_node*,int,int,int,int);
 public:
 	segment_tree_persistent(int m){
 		n=m;
@@ -415,10 +415,10 @@ public:
 	int query(int,int,int);
 };
 
-node3* segment_tree_persistent::update(int l, int r,
-	int x, int val, node3* prev){
+segment_tree_pst_node* segment_tree_persistent::update(int l, int r,
+	int x, int val, segment_tree_pst_node* prev){
 	if(x>r||x<l)return prev;
-	node3* cur=new node3(l,r,val);
+	segment_tree_pst_node* cur=new segment_tree_pst_node(l,r,val);
 	if(l==r)return cur;
 	int m=(l+r)/2;
 	cur->left=update(l,m,x,val,prev==NULL?NULL:prev->left);
@@ -429,11 +429,11 @@ node3* segment_tree_persistent::update(int l, int r,
 }
 
 void segment_tree_persistent::update(int x,int val){
-	node3* prev=roots.empty()?NULL:roots[roots.size()-1];
+	segment_tree_pst_node* prev=roots.empty()?NULL:roots[roots.size()-1];
 	roots.pb(update(1,n,x,val,prev));
 }
 
-int segment_tree_persistent::query(node3* root,int l, int r,
+int segment_tree_persistent::query(segment_tree_pst_node* root,int l, int r,
 	int x, int y){
 	if(x>r||y<l||!root)return 0;
 	if(x<=l&&r<=y)return root->val;
