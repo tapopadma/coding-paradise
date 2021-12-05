@@ -325,3 +325,12 @@ TEST_F(graph_test, tsp){
 		{2,3,35},{3,4,30}});
 	ASSERT_EQ(g.tsp(),80);
 }
+
+TEST_F(graph_test, lca){
+	graph g(15);
+	g.build_undirected({{1,2},{1,3},{1,4},{3,5},
+		{4,6},{5,7},{5,8},{5,9},{7,10},{7,11},{7,12},
+		{9,13},{9,14},{12,15}});
+	ASSERT_EQ(g.lca(10,15),7);
+	ASSERT_EQ(g.lca(11,14),5);
+}

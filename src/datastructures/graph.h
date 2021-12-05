@@ -52,4 +52,5 @@ public:
     vector<vi> find_min_cut(int, int);
     vector<pi> count_max_bipartite_matching(int, int);
     int tsp();
+    int lca(int,int);
 };

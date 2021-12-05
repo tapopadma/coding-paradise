@@ -140,26 +140,42 @@ TEST(trie_test, search){
 
 TEST(binary_tree_test,is_foldable){
 	binary_tree t;
-	t.build({{2,3},{-1,4},{5,-1},{-1,-1},{-1,-1}});
+	t.build({{1,2,3},{2,-1,4},{3,5,-1},{4,-1,-1},{5,-1,-1}});
 	ASSERT_EQ(t.is_foldable(),true);
 	t.clear();
-	t.build({{2,3},{4,-1},{-1,5},{-1,-1},{-1,-1}});
+	t.build({{1,2,3},{2,4,-1},{3,-1,5},{4,-1,-1},{5,-1,-1}});
 	ASSERT_EQ(t.is_foldable(),true);
 	t.clear();
-	t.build({{2,3},{4,-1},{5,-1},{-1,-1},{-1,-1}});
+	t.build({{1,2,3},{2,4,-1},{3,5,-1},{4,-1,-1},{5,-1,-1}});
 	ASSERT_EQ(t.is_foldable(),false);
 	t.clear();
-	t.build({{2,3},{4,5},{6,-1},{-1,-1},{-1,-1},{-1,-1}});
+	t.build({{1,2,3},{2,4,5},{3,6,-1},{4,-1,-1},{5,-1,-1},{6,-1,-1}});
 	ASSERT_EQ(t.is_foldable(),false);
 }
 
 TEST(binary_tree_test,level_spiral_order){
 	binary_tree t;
-	t.build({{2,3},{4,5},{6,7},{8,9},{10,11},{-1,13},{14,-1},
-	{-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1}});
+	t.build({{1,2,3},{2,4,5},{3,6,7},{4,8,9},{5,10,11},{6,-1,13}
+		,{7,14,-1},{8,-1,-1},{9,-1,-1},{10,-1,-1},{11,-1,-1},
+		{12,-1,-1},{13,-1,-1},{14,-1,-1}});
 	vi actual=t.level_spiral_order();
 	vi expected={1,3,2,4,5,6,7,14,13,11,10,9,8};
 	rep(i,0,14){
 		EXPECT_EQ(actual[i],expected[i]);
 	}
+}
+
+TEST(binary_tree_test,merge_bsts){
+	binary_tree t1;
+	t1.build(
+		{{100,2,3},{50,4,5},{300,-1,-1},{20,-1,-1},{70,-1,-1}});
+	binary_tree t2;
+	t2.build(
+		{{80,2,3},{40,-1,-1},{120,-1,-1}});
+	binary_tree t3=t1.merge_bsts(t2);
+	binary_tree expected;
+	expected.build(
+		{{70,2,3},{40,4,5},{100,6,7},{20,-1,-1},{50,-1,-1},
+		{80,-1,-1},{120,-1,8},{300,-1,-1}});
+	ASSERT_EQ(t3.equals(expected),true);
 }

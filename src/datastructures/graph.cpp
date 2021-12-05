@@ -825,3 +825,42 @@ int graph::tsp(){
 	vector<vi> dp(n+1);rep(i,1,n+1)rep(j,0,1<<n)dp[i].pb(-1);
 	return dfs9(1,1,n,a,dp);
 }
+
+void dfs10(int x, int px,vector<vi>g
+		,int* d,vector<vi>& pa) {
+	d[x]=(px==-1?0:(d[px]+1));
+	pa[x][0]=px;
+	for(auto y:g[x]){
+		if(y==px)continue;
+		dfs10(y,x,g,d,pa);
+	}
+}
+
+int graph::lca(int x, int y){
+	vector<vi>pa(n+1);
+	rep(i,1,n+1)rep(j,0,20)pa[i].pb(-1);
+	int d[n+1];
+	dfs10(1,-1,g,d,pa);
+	rep(j,1,20){
+		rep(i,1,n+1){
+			if(pa[i][j-1]>0){
+				pa[i][j]=pa[pa[i][j-1]][j-1];
+			}
+		}
+	}
+	if(d[x]>d[y]){
+		int temp=x;x=y;y=temp;
+	}
+	for(int j=19;j>=0;--j){
+		if(pa[y][j]>0&&d[pa[y][j]]>=d[x]){
+			y=pa[y][j];
+		}
+	}
+	if(x==y)return x;
+	for(int j=19;j>=0;--j){
+		if(pa[x][j]>0&&pa[y][j]>0&&pa[x][j]!=pa[y][j]){
+			x=pa[x][j];y=pa[y][j];
+		}
+	}
+	return pa[x][0];
+}

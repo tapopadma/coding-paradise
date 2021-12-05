@@ -174,12 +174,129 @@ public:
 
 class binary_tree{
 	binary_tree_node* root;
+	bool equals(binary_tree_node*,binary_tree_node*);
 public:
-	void build(vector<pi>);
+	void build(vector<vi>);
 	void clear();
 	bool is_foldable();
 	vi level_spiral_order();
+	binary_tree merge_bsts(binary_tree);
+	pair<binary_tree_node*,binary_tree_node*> convert_to_dll(
+		binary_tree_node*);
+	binary_tree_node* convert_from_dll(binary_tree_node*,
+		binary_tree_node*);
+	bool equals(binary_tree);
 };
+
+bool binary_tree::equals(binary_tree_node* root1, 
+	binary_tree_node* root2){
+	if(!root1 || !root2)
+		return !root1&&!root2;
+	return root1->val==root2->val
+		&&equals(root1->left,root2->left)
+		&&equals(root1->right,root2->right);
+}
+
+bool binary_tree::equals(binary_tree t2){
+	return equals(root, t2.root);
+}
+
+pair<binary_tree_node*,binary_tree_node*> binary_tree::convert_to_dll(
+	binary_tree_node* root){
+	if(!root)return {NULL,NULL};
+	pair<binary_tree_node*,binary_tree_node*> dll1 = 
+		convert_to_dll(root->left);
+	pair<binary_tree_node*,binary_tree_node*> dll2 = 
+		convert_to_dll(root->right);
+	if(!dll1.second){
+		if(!dll2.first){
+			return {root,root};
+		}
+		else{
+			root->right=dll2.first;
+			dll2.first->left=root;
+			return {root,dll2.second};
+		}
+	}else{
+		if(!dll2.first){
+			dll1.second->right=root;
+			root->left=dll1.second;
+			return {dll1.first,root};
+		}
+		else{
+			dll1.second->right=root;
+			root->left=dll1.second;
+			root->right=dll2.first;
+			dll2.first->left=root;
+			return {dll1.first,dll2.second};
+		}
+	}
+}
+
+binary_tree_node* binary_tree::convert_from_dll(
+	binary_tree_node* head, binary_tree_node* tail){
+	binary_tree_node* p1=head;
+	binary_tree_node* p2=head;
+	while(p2!=tail){
+		p2=p2->right;
+		if(p2!=tail)p2=p2->right;else break;
+		p1=p1->right;
+	}
+	binary_tree_node* root1=(p1==head
+		?NULL:convert_from_dll(head,p1->left));
+	binary_tree_node* root2=(p1==tail?
+		NULL:convert_from_dll(p1->right,tail));
+	p1->left=root1;p1->right=root2;
+	return p1;
+}
+
+binary_tree binary_tree::merge_bsts(binary_tree t2){
+	pair<binary_tree_node*,binary_tree_node*> dll1 = 
+		convert_to_dll(root);
+	pair<binary_tree_node*,binary_tree_node*> dll2 = 
+		convert_to_dll(t2.root);
+	binary_tree_node* head1=dll1.first;
+	binary_tree_node* head2=dll2.first;
+	binary_tree_node* cur=NULL;
+	binary_tree_node* head;
+	binary_tree_node* tail;
+	while(head1 || head2){
+		if(!head1){
+			if(cur){
+				cur->right=head2;head2->left=cur;cur=cur->right;
+			}else{
+				cur=head2;head=cur;
+			}
+			head2=head2->right;
+		}else if(!head2){
+			if(cur){
+				cur->right=head1;head1->left=cur;cur=cur->right;
+			}else{
+				cur=head1;head=cur;
+			}
+			head1=head1->right;
+		}else{
+			if(cur){
+				if(head1->val < head2->val){
+					cur->right=head1;head1->left=cur;
+					cur=cur->right;head1=head1->right;
+				}else{
+					cur->right=head2;head2->left=cur;
+					cur=cur->right;head2=head2->right;
+				}	
+			}else {
+				if(head1->val < head2->val){
+					cur=head1;head1=head1->right;head=cur;
+				}else{
+					cur=head2;head2=head2->right;head=cur;
+				}
+			}
+		}
+	}
+	tail=cur;
+	root = convert_from_dll(head, tail);
+	return *this;
+}
 
 vi binary_tree::level_spiral_order(){
 	if(!root)return {};
@@ -223,16 +340,16 @@ void binary_tree::clear(){
 	_delete(root);root=NULL;
 }
 
-void binary_tree::build(vector<pi> data){
+void binary_tree::build(vector<vi> data){
 	binary_tree_node* nodes[data.size()];
 	rep(i,0,data.size()){
-		nodes[i]=new binary_tree_node(i+1);
+		nodes[i]=new binary_tree_node(data[i][0]);
 	}
 	rep(i,0,data.size()){
 		nodes[i]->left=
-			(data[i].first==-1?NULL:nodes[data[i].first-1]);
+			(data[i][1]==-1?NULL:nodes[data[i][1]-1]);
 		nodes[i]->right=
-			(data[i].second==-1?NULL:nodes[data[i].second-1]);
+			(data[i][2]==-1?NULL:nodes[data[i][2]-1]);
 	}
 	root=nodes[0];
 }
