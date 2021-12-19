@@ -23,6 +23,10 @@ void output(int a, Arg... args){printf("%d ",a);output(args...);}
 #define outl(a...) outputl(a);
 #define outs(s) printf("%s", s.c_str());
 #define pf printf
+#define INF64 9223372036854775807LL
+#define INF 2147483647
+#define mod 998244353
+#define NN 200001
 
 class avl_tree_node{
 public:
@@ -637,3 +641,176 @@ trie_node* trie::erase(trie_node* root, int i, string s){
 void trie::erase(string s){
 	root=erase(root,0,s);
 }
+
+class hld{
+	int n;
+	vector<vector<vi>>g;
+	int *sz;int *chain;int *pos;
+	int **pa;int *d;int *chain_head;
+	int *stree;int *arr;
+	void dfs(int,int);
+	void build_hld(int,int,int);
+	int chain_count,pos_count;
+	int lca(int,int);
+	int query_chain(int,int);
+	int query_segment(int,int,int,int,int);
+	void build_segment_tree(int,int,int);
+	void update_segment(int,int,int,int,int);
+public:
+	void build(int,vector<vi>);
+	void clear(){
+		g.clear();
+	}
+	int query_mx(int,int);
+	void update(int,int,int);
+};
+
+void hld::update_segment(int i, int l, int r, int x, int v){
+	if(x>r||x<l)return;
+	if(l==r){
+		stree[i]=v;return;
+	}
+	int m=(l+r)/2;
+	update_segment(i*2,l,m,x,v);
+	update_segment(1+i*2,1+m,r,x,v);
+	stree[i]=max(stree[i*2],stree[1+i*2]);
+}
+
+void hld::update(int u, int v, int w){
+	if(pa[u][0]==v){
+		update_segment(1,1,n,pos[u],w);
+	}else{
+		update_segment(1,1,n,pos[v],w);
+	}
+}
+
+void hld::dfs(int x, int px){
+	sz[x]=1;pa[x][0]=px;d[x]=px>0?d[px]+1:0;
+	for(auto e:g[x]){
+		if(e[0]==px)continue;
+		dfs(e[0],x);sz[x]+=sz[e[0]];
+	}
+}
+
+int hld::lca(int u, int v){
+	if(d[u]>d[v]){
+		int t=u;u=v;v=t;
+	}
+	for(int j=20;j>=0;--j){
+		if(pa[v][j]>0&&d[pa[v][j]]>=d[u]){
+			v=pa[v][j];
+		}
+	}
+	if(u==v)return u;
+	for(int j=20;j>=0;--j){
+		if(pa[u][j]>0&&pa[v][j]>0&&pa[u][j]!=pa[v][j])
+			u=pa[u][j],v=pa[v][j];
+	}
+	return pa[u][0];
+}
+
+int hld::query_segment(int i, int l, int r, int x, int y){
+	if(x>r||y<l)return -INF;
+	if(x<=l&&r<=y)return stree[i];
+	int m=(l+r)/2;
+	return max(query_segment(i*2,l,m,x,y)
+		,query_segment(1+i*2,1+m,r,x,y));
+}
+
+int hld::query_chain(int u, int v){
+	if(u==v)return -INF;
+	if(chain[u]==chain[v]){
+		return query_segment(1,1,n,pos[u]+1,pos[v]);
+	}
+	int x=chain_head[chain[v]];
+	return max(query_chain(u,pa[x][0]),
+		query_segment(1,1,n,pos[x],pos[v]));
+}
+
+int hld::query_mx(int u, int v){
+	int l=lca(u,v);
+	return max(query_chain(l,u),query_chain(l,v));
+}
+
+void hld::build_hld(int x, int px, int pw){
+	chain[x]=chain_count;pos[x]=pos_count++;
+	arr[pos[x]]=pw;
+	int mx=0;vi emx;
+	for(auto e:g[x]){
+		if(e[0]==px)continue;
+		if(sz[e[0]]>mx){
+			mx=sz[e[0]];emx={e[0],e[1]};
+		}
+	}
+	if(mx==0)return;
+	build_hld(emx[0],x,emx[1]);
+	for(auto e:g[x]){
+		if(e[0]==px||e[0]==emx[0])continue;
+		chain_head[++chain_count]=e[0];
+		build_hld(e[0],x,e[1]);
+	}
+}
+
+void hld::build_segment_tree(int i, int l, int r){
+	if(l==r){
+		stree[i]=arr[l];return;
+	}
+	int m=(l+r)/2;
+	build_segment_tree(i*2,l,m);
+	build_segment_tree(1+i*2,1+m,r);
+	stree[i]=max(stree[i*2],stree[1+i*2]);
+}
+
+void hld::build(int n, vector<vi>edges){
+	g=vector<vector<vi>>(n+1);this->n=n;
+	sz=new int[n+1];chain=new int[n+1];
+	pos=new int[n+1];d=new int[n+1];
+	pa=new int*[n+1];chain_head=new int[n+1];
+	rep(i,1,n+1)pa[i]=new int[21];
+	rep(i,1,n+1)rep(j,0,21)pa[i][j]=-1;
+	for(auto e: edges){
+		g[e[0]].pb({e[1],e[2]});
+		g[e[1]].pb({e[0],e[2]});
+	}
+	dfs(1,-1);
+	rep(j,1,21){
+		rep(i,1,n+1){
+			pa[i][j]=pa[i][j-1]>0?pa[pa[i][j-1]][j-1]:-1;
+		}
+	}
+	arr=new int[n+1];
+	chain_count=1;pos_count=1;chain_head[1]=1;
+	build_hld(1,-1,-INF);
+	stree=new int[4*n];
+	build_segment_tree(1,1,n);
+}
+
+class rmq{
+	int n;int **T;vi v;
+public:
+	rmq(vi v){
+		this->v=v;
+		n=v.size();
+		T=new int*[n+1];rep(i,1,n+1)T[i]=new int[20];
+		rep(i,1,n+1)T[i][0]=i;
+		rep(j,1,20){
+			rep(i,1,n+1){
+				if(i+(1<<(j-1))<=n
+					&&v[T[i+(1<<(j-1))][j-1]-1]<v[T[i][j-1]-1]){
+					T[i][j]=T[i+(1<<(j-1))][j-1];
+				}else{
+					T[i][j]=T[i][j-1];
+				}
+			}
+		}
+	}
+	int query(int l, int r){
+		int mn=2000000000;
+		for(int j=19;j>=0;--j){
+			if(l+(1<<j)-1<=r){
+				mn=min(mn,v[T[l][j]-1]);l+=(1<<j);
+			}
+		}
+		return mn;
+	}
+};

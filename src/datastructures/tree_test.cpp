@@ -179,3 +179,32 @@ TEST(binary_tree_test,merge_bsts){
 		{80,-1,-1},{120,-1,8},{300,-1,-1}});
 	ASSERT_EQ(t3.equals(expected),true);
 }
+
+TEST(hld_test,hld){
+	hld h;
+	h.build(11,{{1,2,13},{1,3,9},{1,4,23},{2,5,4},{2,6,25},
+		{3,7,29},{6,8,5},{7,9,30},{8,10,1},{8,11,6}});
+	ASSERT_EQ(h.query_mx(11,9),30);
+	ASSERT_EQ(h.query_mx(11,4),25);
+	ASSERT_EQ(h.query_mx(5,4),23);
+	ASSERT_EQ(h.query_mx(6,2),25);
+	h.update(3,7,5);
+	ASSERT_EQ(h.query_mx(7,3),5);
+	h.update(6,8,34);
+	ASSERT_EQ(h.query_mx(10,5),34);
+	ASSERT_EQ(h.query_mx(2,9),30);
+	h.update(2,1,68);
+	ASSERT_EQ(h.query_mx(2,7),68);
+	ASSERT_EQ(h.query_mx(10,11),6);
+}
+
+TEST(rmq_test,query){
+	rmq r({5,7,1,4,9,2,7,8,5,9,1,3,6});
+	ASSERT_EQ(r.query(1,13),1);
+	ASSERT_EQ(r.query(4,6),2);
+	ASSERT_EQ(r.query(5,5),9);
+	ASSERT_EQ(r.query(7,11),1);
+	ASSERT_EQ(r.query(11,12),1);
+	ASSERT_EQ(r.query(12,13),3);
+	ASSERT_EQ(r.query(6,9),2);
+}

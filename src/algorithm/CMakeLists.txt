@@ -59,7 +59,79 @@ target_link_libraries(
   catalan_lib
 )
 
+add_library(
+  offline_query_lib
+  offline_query.cpp
+)
+add_executable(
+  offline_query_test
+  offline_query_test.cpp
+)
+target_link_libraries(
+  offline_query_test
+  gtest_main
+)
+target_link_libraries(
+  offline_query_test
+  offline_query_lib
+)
+
+add_library(
+  arithmetic_expression_lib
+  arithmetic_expression.cpp
+)
+add_executable(
+  arithmetic_expression_test
+  arithmetic_expression_test.cpp
+)
+target_link_libraries(
+  arithmetic_expression_test
+  gtest_main
+)
+target_link_libraries(
+  arithmetic_expression_test
+  arithmetic_expression_lib
+)
+
+add_library(
+  next_greater_lib
+  next_greater.cpp
+)
+add_executable(
+  next_greater_test
+  next_greater_test.cpp
+)
+target_link_libraries(
+  next_greater_test
+  gtest_main
+)
+target_link_libraries(
+  next_greater_test
+  next_greater_lib
+)
+
+add_library(
+  strings_lib
+  strings.cpp
+)
+add_executable(
+  strings_test
+  strings_test.cpp
+)
+target_link_libraries(
+  strings_test
+  gtest_main
+)
+target_link_libraries(
+  strings_test
+  strings_lib
+)
+
 include(GoogleTest)
 gtest_discover_tests(cayley_test)
 gtest_discover_tests(modulo_test)
 gtest_discover_tests(catalan_test)
+gtest_discover_tests(offline_query_test)
+gtest_discover_tests(arithmetic_expression_test)
+gtest_discover_tests(next_greater_test)
+gtest_discover_tests(strings_test)

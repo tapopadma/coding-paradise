@@ -59,7 +59,25 @@ target_link_libraries(
   linked_list_lib
 )
 
+add_library(
+  heap_lib
+  heap.cpp
+)
+add_executable(
+  heap_test
+  heap_test.cpp
+)
+target_link_libraries(
+  heap_test
+  gtest_main
+)
+target_link_libraries(
+  heap_test
+  heap_lib
+)
+
 include(GoogleTest)
 gtest_discover_tests(graph_test)
 gtest_discover_tests(tree_test)
 gtest_discover_tests(linked_list_test)
+gtest_discover_tests(heap_test)
