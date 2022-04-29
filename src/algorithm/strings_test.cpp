@@ -15,6 +15,8 @@ TEST(kmp_test,find){
 	assert_vectors(km->find(),{});
 	km=new kmp("princeandprincessprices","pri");
 	assert_vectors(km->find(),{0,9,17});
+	km=new kmp("dddabababdd","abab");
+	assert_vectors(km->find(),{3,5});
 }
 
 TEST(z_test,find){

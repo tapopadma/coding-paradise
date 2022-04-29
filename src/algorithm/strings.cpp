@@ -54,7 +54,7 @@ public:
 		rep(i,0,n){
 			if(t[i]==p[j]){
 				if(j==m-1){
-					v.pb(i-m+1);j=0;
+					v.pb(i-m+1);j=lps[j];
 				}else ++j;
 			}else{
 				while(j&&t[i]!=p[j])j=lps[j-1];
